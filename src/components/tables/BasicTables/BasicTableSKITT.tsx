@@ -1514,7 +1514,7 @@ if (!formUpdate.file_ktp) newErrors.file_ktp = "KTP wajib tersedia";
       )}
     </div>
 
-    {/* FOOTER */}
+    {/* Tersimpan */}
     <div className="flex justify-end pt-4 border-t mt-4 dark:border-gray-700">
       <button
         className="px-8 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition text-sm shadow-md"
@@ -1775,7 +1775,7 @@ if (!formUpdate.file_ktp) newErrors.file_ktp = "KTP wajib tersedia";
         </div>
       </div>
       <div className="flex items-center gap-4 shrink-0">
-        <span className="text-[10px] text-green-600 font-bold flex items-center gap-1.5 bg-green-50 dark:bg-green-900/20 px-2.5 py-1 rounded-full uppercase">
+        <span className="text-[10px] text-green-600 font-bold flex items-center gap-1.5 bg-green-50 dark:bg-green-900/20 px-2.5 py-1 rounded-full">
           <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>
           Terload
         </span>
@@ -1799,7 +1799,7 @@ if (!formUpdate.file_ktp) newErrors.file_ktp = "KTP wajib tersedia";
 </div>
 </div>
 
-            {/* FOOTER */}
+            {/* Tersimpan */}
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 px-6 py-5 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 lg:px-11">
               <Button variant="outline" onClick={() => setModalAjukanKembali(false)} className="w-full sm:w-auto">
                 Batal
@@ -1989,7 +1989,7 @@ if (!formUpdate.file_ktp) newErrors.file_ktp = "KTP wajib tersedia";
 </div>
 </div>
 
-    {/* ACTION BUTTONS / FOOTER - Tetap di bawah (Fixed) */}
+    {/* ACTION BUTTONS / Tersimpan - Tetap di bawah (Fixed) */}
     <div className="flex justify-end gap-3 p-6 border-t bg-gray-50 dark:bg-gray-800/50">
       <button
         type="button"
