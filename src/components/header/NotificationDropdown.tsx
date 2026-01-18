@@ -191,13 +191,13 @@ export default function NotificationDropdown() {
           )}
         </ul>
 
-        <Link
+        {/* <Link
           to="/notifications"
           onClick={closeDropdown}
           className="block w-full py-2.5 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 transition-all"
         >
           Lihat semua notifikasi
-        </Link>
+        </Link> */}
       </Dropdown>
     </div>
   );
