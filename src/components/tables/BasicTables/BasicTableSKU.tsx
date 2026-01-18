@@ -40,6 +40,7 @@ interface SKU {
   file_pengantar_rt: string | null;
   file_ktp: string | null;
   file_kk: string | null;
+  file: string | null;
   alasan: string;
   bidang_usaha: string;
   keperluan: string;
@@ -157,11 +158,13 @@ export default function BasicTableSKU() {
     alasan: "",
     bidang_usaha: "",
     keterangan: "",
-    file_ktp: null as File | null,
-    file_kk: null as File | null,
-    ttd_masyarakat: null as File | null,
-    file: null as File | null,
+   file_ktp: null as File | string | null,
+  file_kk: null as File | string | null,
+  ttd_masyarakat: null as File | string | null,
+  file: null as File | string | null,
   });
+
+  const STORAGE_URL = "http://127.0.0.1:8000/"
 
   // Format tanggal
   const formatDate = (date: string) => {
@@ -408,26 +411,9 @@ useEffect(() => {
     newErrors.rt_id = "RT wajib dipilih";
   }
 
-  // ===============================
-  // KTP WAJIB
-  // ===============================
-  if (!formUpdate.file_ktp) {
-    newErrors.file_ktp = "KTP wajib diupload";
-  }
-
-  // ===============================
-  // KK WAJIB
-  // ===============================
-  if (!formUpdate.file_kk) {
-    newErrors.file_kk = "KK wajib diupload";
-  }
-
-  // ===============================
-  // TTD WAJIB
-  // ===============================
-  if (!formUpdate.ttd_masyarakat) {
-    newErrors.ttd_masyarakat = "Tanda tangan masyarakat wajib diupload";
-  }
+  if (!formUpdate.file_ktp) newErrors.file_ktp = "KTP wajib tersedia";
+  if (!formUpdate.file_kk) newErrors.file_kk = "KK wajib tersedia";
+  if (!formUpdate.ttd_masyarakat) newErrors.ttd_masyarakat = "Tanda tangan wajib tersedia";
 
   // SIMPAN ERROR KE STATE
   setErrors(newErrors);
@@ -466,12 +452,16 @@ useEffect(() => {
     fd.append("rt_id", String(selectedData.rt_id));
   }
 
-  fd.append("file_ktp", formUpdate.file_ktp as File);
-  fd.append("file_kk", formUpdate.file_kk as File);
-  fd.append("ttd_masyarakat", formUpdate.ttd_masyarakat as File);
-
-  // File tambahan (opsional)
-  if (formUpdate.file) {
+  if (formUpdate.file_ktp instanceof File) {
+    fd.append("file_ktp", formUpdate.file_ktp);
+  }
+  if (formUpdate.file_kk instanceof File) {
+    fd.append("file_kk", formUpdate.file_kk);
+  }
+  if (formUpdate.ttd_masyarakat instanceof File) {
+    fd.append("ttd_masyarakat", formUpdate.ttd_masyarakat);
+  }
+  if (formUpdate.file instanceof File) {
     fd.append("file", formUpdate.file);
   }
 
@@ -549,10 +539,10 @@ useEffect(() => {
     bidang_usaha: item.bidang_usaha ?? "",
     keterangan: "",
     rt_id: item.rt_id ? String(item.rt_id) : (item.rt?.id ? String(item.rt.id) : ""),
-    file_ktp: null,
-    file_kk: null,
-    ttd_masyarakat: null,
-    file: null
+    file_ktp: item.file_ktp || null,
+    file_kk: item.file_kk || null,
+    ttd_masyarakat: item.ttd_masyarakat || null,
+    file: item.file || null
   });
 
   setModalAjukanKembali(true);
@@ -1711,165 +1701,161 @@ useEffect(() => {
                   />
                   {errors.alasan && <p className="mt-1 text-xs text-red-500">{errors.alasan}</p>}
                 </div>
+                </div> 
 
-               {/* UPLOAD KTP */}
-<div className="lg:col-span-2 space-y-2">
-  <Label>Upload KTP <span className="text-red-500">*</span></Label>
-  <label
-    htmlFor="file_ktp_update"
-    className="mt-2 flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer border-gray-300 hover:border-blue-500 bg-gray-50 dark:bg-gray-800/50 transition p-4 text-center"
-  >
-    <svg className="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9m0 0-3 3m3-3 3 3m5 4.5v2.25A2.25 2.25 0 0114.75 21h-5.5A2.25 2.25 0 017 18.75V16.5" />
-    </svg>
-    <span className="text-xs text-gray-500">Klik untuk upload (PDF / JPG / PNG, max 5MB)</span>
-    <input
-      id="file_ktp_update"
-      type="file"
-      accept="image/*,application/pdf"
-      className="hidden"
-      onChange={(e) => setFormUpdate({ ...formUpdate, file_ktp: e.target.files?.[0] || null })}
-    />
+                {/* --- SECTION DOKUMEN PENDUKUNG (DI LUAR GRID AGAR FULL WIDTH) --- */}
+              <div className="mt-10">
+                <h5 className="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90 border-b border-gray-100 dark:border-gray-800 pb-2">
+                  Dokumen Pendukung <span className="text-xs font-normal text-gray-400 ml-1">(Upload jika ada perubahan)</span>
+                </h5>
+
+                <div className="space-y-8">
+                  {/* KTP */}
+                  <div className="space-y-3">
+                    <Label>Upload KTP</Label>
+                    <label htmlFor="file_ktp_update" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer border-gray-300 hover:border-blue-500 bg-gray-50/50 dark:bg-gray-800/50 transition p-4 text-center">
+                      <svg className="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9m0 0-3 3m3-3 3 3m5 4.5v2.25A2.25 2.25 0 0114.75 21h-5.5A2.25 2.25 0 017 18.75V16.5" /></svg>
+                      <span className="text-xs text-gray-500 font-medium">Klik untuk mengganti KTP (PDF/JPG/PNG)</span>
+                      <input id="file_ktp_update" type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => setFormUpdate({ ...formUpdate, file_ktp: e.target.files?.[0] || formUpdate.file_ktp })} />
+                    </label>
+
+                    {formUpdate.file_ktp && (
+                      <div className="mt-3 p-4 border rounded-2xl bg-white dark:bg-gray-800/80 flex items-center justify-between shadow-sm border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center gap-4 overflow-hidden">
+                          {((typeof formUpdate.file_ktp === "string" && (formUpdate.file_ktp as string).toLowerCase().endsWith('.pdf')) || (formUpdate.file_ktp instanceof File && formUpdate.file_ktp.type === "application/pdf")) ? (
+                            <div className="h-16 w-24 flex items-center justify-center bg-red-50 rounded-xl border border-red-100 shrink-0">
+                              <span className="text-red-600 font-bold text-xs">PDF</span>
+                            </div>
+                          ) : (
+                            <img 
+                              src={formUpdate.file_ktp instanceof File ? URL.createObjectURL(formUpdate.file_ktp) : `${STORAGE_URL}${formUpdate.file_ktp}`} 
+                              alt="Preview" 
+                              className="h-16 w-24 object-cover rounded-xl border border-gray-100 shadow-sm shrink-0" 
+                              onError={(e) => { e.currentTarget.src = "https://via.placeholder.com/150?text=No+Image"; }}
+                            />
+                          )}
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-bold text-gray-700 dark:text-gray-200 truncate uppercase">
+                              {formUpdate.file_ktp instanceof File ? formUpdate.file_ktp.name : "KTP Saat Ini"}
+                            </span>
+                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">
+                              {formUpdate.file_ktp instanceof File ? "File Baru Terpilih" : "FILE TERSIMPAN"}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 shrink-0">
+                          <span className="text-[10px] text-green-600 font-bold flex items-center gap-1.5 bg-green-50 dark:bg-green-900/20 px-2.5 py-1 rounded-full">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>
+                            Tersimpan
+                          </span>
+                          {typeof formUpdate.file_ktp === "string" && (
+                            <a href={`${STORAGE_URL}${formUpdate.file_ktp}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:text-blue-700 border-l pl-4 border-gray-200 dark:border-gray-700 transition-colors">
+                              LIHAT
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {errors.file_ktp && <p className="mt-1 text-xs text-red-500">{errors.file_ktp}</p>}
+                  </div>
+
+                  {/* KK */}
+                  <div className="space-y-3">
+                    <Label>Upload Kartu Keluarga (KK)</Label>
+                    <label htmlFor="file_kk_update" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer border-gray-300 hover:border-blue-500 bg-gray-50/50 dark:bg-gray-800/50 transition p-4 text-center">
+                      <svg className="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9m0 0-3 3m3-3 3 3m5 4.5v2.25A2.25 2.25 0 0114.75 21h-5.5A2.25 2.25 0 017 18.75V16.5" /></svg>
+                      <span className="text-xs text-gray-500 font-medium">Klik untuk mengganti KK (PDF/JPG/PNG)</span>
+                      <input id="file_kk_update" type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => setFormUpdate({ ...formUpdate, file_kk: e.target.files?.[0] || formUpdate.file_kk })} />
+                    </label>
+
+                    {formUpdate.file_kk && (
+                      <div className="mt-3 p-4 border rounded-2xl bg-white dark:bg-gray-800/80 flex items-center justify-between shadow-sm border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center gap-4 overflow-hidden">
+                          {((typeof formUpdate.file_kk === "string" && (formUpdate.file_kk as string).toLowerCase().endsWith('.pdf')) || (formUpdate.file_kk instanceof File && formUpdate.file_kk.type === "application/pdf")) ? (
+                            <div className="h-16 w-24 flex items-center justify-center bg-red-50 rounded-xl border border-red-100 shrink-0">
+                              <span className="text-red-600 font-bold text-xs">PDF</span>
+                            </div>
+                          ) : (
+                            <img src={formUpdate.file_kk instanceof File ? URL.createObjectURL(formUpdate.file_kk) : `${STORAGE_URL}${formUpdate.file_kk}`} alt="Preview" className="h-16 w-24 object-cover rounded-xl border border-gray-100 shadow-sm shrink-0" onError={(e) => { e.currentTarget.src = "https://via.placeholder.com/150?text=No+Image"; }} />
+                          )}
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-bold text-gray-700 dark:text-gray-200 truncate uppercase">
+                              {formUpdate.file_kk instanceof File ? formUpdate.file_kk.name : "KK Saat Ini"}
+                            </span>
+                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">
+                              {formUpdate.file_kk instanceof File ? "File Baru Terpilih" : "FILE TERSIMPAN"}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 shrink-0">
+                          <span className="text-[10px] text-green-600 font-bold flex items-center gap-1.5 bg-green-50 dark:bg-green-900/20 px-2.5 py-1 rounded-full">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>
+                            Tersimpan
+                          </span>
+                          {typeof formUpdate.file_kk === "string" && (
+                            <a href={`${STORAGE_URL}${formUpdate.file_kk}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:text-blue-700 border-l pl-4 border-gray-200 dark:border-gray-700 transition-colors">
+                              LIHAT
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {errors.file_kk && <p className="mt-1 text-xs text-red-500">{errors.file_kk}</p>}
+                  </div>
+
+                 {/* Tanda Tangan */}
+<div className="space-y-3">
+  <Label>Upload Tanda Tangan</Label>
+  <label htmlFor="ttd_masyarakat_update" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer border-gray-300 hover:border-blue-500 bg-gray-50/50 dark:bg-gray-800/50 transition p-4 text-center">
+    <svg className="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9m0 0-3 3m3-3 3 3m5 4.5v2.25A2.25 2.25 0 0114.75 21h-5.5A2.25 2.25 0 017 18.75V16.5" /></svg>
+    <span className="text-xs text-gray-500 font-medium">Klik untuk mengganti Tanda Tangan (JPG/PNG)</span>
+    <input id="ttd_masyarakat_update" type="file" accept="image/*" className="hidden" onChange={(e) => setFormUpdate({ ...formUpdate, ttd_masyarakat: e.target.files?.[0] || formUpdate.ttd_masyarakat })} />
   </label>
-  {errors.file_ktp && <p className="mt-1 text-xs text-red-500">{errors.file_ktp}</p>}
 
-  {/* Logika Preview KTP */}
-  {formUpdate.file_ktp && (
-    <div className="mt-3 p-3 border rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-between">
-      <div className="flex items-center gap-3 overflow-hidden">
-        {formUpdate.file_ktp.type === "application/pdf" ? (
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-red-100 text-red-600 rounded text-[10px] font-bold">PDF</span>
-            <span className="text-xs truncate max-w-[150px]">{formUpdate.file_ktp.name}</span>
-          </div>
-        ) : (
-          <img 
-            src={URL.createObjectURL(formUpdate.file_ktp)} 
-            alt="Preview KTP" 
-            className="h-16 w-24 object-cover rounded-md border" 
-          />
-        )}
-      </div>
-      {formUpdate.file_ktp.type === "application/pdf" ? (
-        <a 
-          href={URL.createObjectURL(formUpdate.file_ktp)} 
-          target="_blank" 
-          rel="noreferrer" 
-          className="text-xs font-bold text-blue-600 hover:underline"
-        >
-          Lihat File
-        </a>
-      ) : (
-        <span className="text-[10px] text-green-600 font-medium">✓ Gambar Terpilih</span>
-      )}
-    </div>
-  )}
-</div>
-
-{/* UPLOAD KK */}
-<div className="lg:col-span-2 space-y-2">
-  <Label>Upload Kartu keluarga (KK) <span className="text-red-500">*</span></Label>
-  <label
-    htmlFor="file_kk_update"
-    className="mt-2 flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer border-gray-300 hover:border-blue-500 bg-gray-50 dark:bg-gray-800/50 transition p-4 text-center"
-  >
-    <svg className="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9m0 0-3 3m3-3 3 3m5 4.5v2.25A2.25 2.25 0 0114.75 21h-5.5A2.25 2.25 0 017 18.75V16.5" />
-    </svg>
-    <span className="text-xs text-gray-500">Klik untuk upload (PDF / JPG / PNG, max 5MB)</span>
-    <input
-      id="file_kk_update"
-      type="file"
-      accept="image/*,application/pdf"
-      className="hidden"
-      onChange={(e) => setFormUpdate({ ...formUpdate, file_kk: e.target.files?.[0] || null })}
-    />
-  </label>
-  {errors.file_kk && <p className="mt-1 text-xs text-red-500">{errors.file_kk}</p>}
-
-  {/* Logika Preview KK */}
-  {formUpdate.file_kk && (
-    <div className="mt-3 p-3 border rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-between">
-      <div className="flex items-center gap-3 overflow-hidden">
-        {formUpdate.file_kk.type === "application/pdf" ? (
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-red-100 text-red-600 rounded text-[10px] font-bold">PDF</span>
-            <span className="text-xs truncate max-w-[150px]">{formUpdate.file_kk.name}</span>
-          </div>
-        ) : (
-          <img 
-            src={URL.createObjectURL(formUpdate.file_kk)} 
-            alt="Preview KK" 
-            className="h-16 w-24 object-cover rounded-md border" 
-          />
-        )}
-      </div>
-      {formUpdate.file_kk.type === "application/pdf" ? (
-        <a 
-          href={URL.createObjectURL(formUpdate.file_kk)} 
-          target="_blank" 
-          rel="noreferrer" 
-          className="text-xs font-bold text-blue-600 hover:underline"
-        >
-          Lihat File
-        </a>
-      ) : (
-        <span className="text-[10px] text-green-600 font-medium">✓ Gambar Terpilih</span>
-      )}
-    </div>
-  )}
-</div>
-
-{/* UPLOAD TANDA TANGAN DENGAN PREVIEW CHECKERBOARD */}
-<div className="lg:col-span-2 space-y-2">
-  <Label>Upload Tanda Tangan Anda <span className="text-red-500">*</span></Label>
-  <label
-    htmlFor="ttd_masyarakat_update"
-    className="mt-2 flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer border-gray-300 hover:border-blue-500 bg-gray-50 dark:bg-gray-800/50 transition p-4 text-center"
-  >
-    <svg className="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9m0 0-3 3m3-3 3 3m5 4.5v2.25A2.25 2.25 0 0114.75 21h-5.5A2.25 2.25 0 017 18.75V16.5" />
-    </svg>
-    <span className="text-xs text-gray-500">Upload gambar tanda tangan (JPG / PNG)</span>
-    <input
-      id="ttd_masyarakat_update"
-      type="file"
-      accept="image/png,image/jpeg"
-      className="hidden"
-      onChange={(e) => setFormUpdate({ ...formUpdate, ttd_masyarakat: e.target.files?.[0] || null })}
-    />
-  </label>
-  {errors.ttd_masyarakat && <p className="mt-1 text-xs text-red-500">{errors.ttd_masyarakat}</p>}
-
-  {/* Logika Preview TTD dengan Checkerboard */}
   {formUpdate.ttd_masyarakat && (
-    <div className="mt-3 p-3 border rounded-xl bg-gray-50 dark:bg-gray-800/50 flex flex-col items-center">
-      <div className="flex justify-between w-full mb-2 px-1">
-        <p className="text-[10px] text-gray-500 font-medium">Preview Tanda Tangan:</p>
-        <p className="text-[10px] text-green-600 font-bold">✅ {formUpdate.ttd_masyarakat.name}</p>
+    <div className="mt-3 p-4 border rounded-2xl bg-white dark:bg-gray-800/80 flex items-center justify-between shadow-sm border-gray-100 dark:border-gray-700">
+      <div className="flex items-center gap-4 overflow-hidden">
+        <div 
+          className="h-16 w-24 flex items-center justify-center rounded-xl border border-gray-100 shadow-sm overflow-hidden shrink-0" 
+          style={{ backgroundColor: '#ffffff', backgroundImage: 'linear-gradient(45deg, #f3f4f6 25%, transparent 25%), linear-gradient(-45deg, #f3f4f6 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f3f4f6 75%), linear-gradient(-45deg, transparent 75%, #f3f4f6 75%)', backgroundSize: '10px 10px', backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' }}
+        >
+          <img 
+            src={formUpdate.ttd_masyarakat instanceof File ? URL.createObjectURL(formUpdate.ttd_masyarakat) : `${STORAGE_URL}${formUpdate.ttd_masyarakat}`} 
+            alt="Preview TTD" 
+            className="h-full object-contain relative z-10" 
+            onError={(e) => { e.currentTarget.src = "https://via.placeholder.com/150?text=No+Signature"; }}
+          />
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm font-bold text-gray-700 dark:text-gray-200 truncate uppercase">
+            {formUpdate.ttd_masyarakat instanceof File ? "TTD Baru" : "Tanda Tangan Saat Ini"}
+          </span>
+          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">
+            {formUpdate.ttd_masyarakat instanceof File ? formUpdate.ttd_masyarakat.name : "FILE TERSIMPAN"}
+          </span>
+        </div>
       </div>
-
-      {/* Container dengan pola kotak-kotak (Checkerboard) */}
-      <div 
-        className="relative w-full flex justify-center p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden"
-        style={{
-          backgroundColor: '#ffffff',
-          backgroundImage: 'linear-gradient(45deg, #e5e7eb 25%, transparent 25%), linear-gradient(-45deg, #e5e7eb 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e5e7eb 75%), linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)',
-          backgroundSize: '20px 20px',
-          backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-        }}
-      >
-        <img 
-          src={URL.createObjectURL(formUpdate.ttd_masyarakat)} 
-          alt="Preview TTD" 
-          className="h-24 object-contain relative z-10" 
-        />
+      <div className="flex items-center gap-4 shrink-0">
+        <span className="text-[10px] text-green-600 font-bold flex items-center gap-1.5 bg-green-50 dark:bg-green-900/20 px-2.5 py-1 rounded-full">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>
+          Tersimpan
+        </span>
+        {/* Tambahan tombol LIHAT untuk TTD */}
+        {typeof formUpdate.ttd_masyarakat === "string" && (
+          <a 
+            href={`${STORAGE_URL}${formUpdate.ttd_masyarakat}`} 
+            target="_blank" 
+            rel="noreferrer" 
+            className="text-xs font-bold text-blue-600 hover:text-blue-700 border-l pl-4 border-gray-200 dark:border-gray-700 transition-colors uppercase"
+          >
+            LIHAT
+          </a>
+        )}
       </div>
-      <p className="mt-2 text-[9px] text-gray-400 italic text-center">
-        *Pastikan pola kotak-kotak terlihat di sela tanda tangan agar hasil cetak surat lebih rapi.
-      </p>
     </div>
   )}
+  {errors.ttd_masyarakat && <p className="mt-1 text-xs text-red-500">{errors.ttd_masyarakat}</p>}
+</div>
 </div>
 </div>
 </div>
