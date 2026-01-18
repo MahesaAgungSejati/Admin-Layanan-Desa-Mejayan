@@ -75,6 +75,7 @@ export default function ModalUpdateBerita({
                     { value: "Event", label: "Event" },
                     { value: "Kesehatan", label: "Kesehatan" },
                     { value: "Pengumuman", label: "Pengumuman" },
+                    { value: "Lainnya", label: "Lainnya" },
                   ]}
                   onChange={(val) => handleSelect("jenis_berita", val)}
                   placeholder="Pilih jenis berita"
